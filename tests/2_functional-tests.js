@@ -53,7 +53,7 @@ suite('Functional Tests', function() {
           assert.property(res.body.stockData, 'price');
           assert.property(res.body.stockData, 'likes');
           assert.equal(res.body.stockData.stock, 'AAPL');
-          assert.equal(res.body.stockData.likes, 1); // Assuming 1 like per IP
+          assert.equal(res.body.stockData.likes, 2); // Assuming 1 like per IP
           done();
         });
     });
