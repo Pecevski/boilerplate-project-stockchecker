@@ -15,10 +15,11 @@ suite('Functional Tests', function() {
         .end(function(err, res) {
           assert.equal(res.status, 200);
           assert.isObject(res.body);
-          assert.property(res.body, 'stock');
-          assert.property(res.body, 'price');
-          assert.property(res.body, 'likes');
-          assert.equal(res.body.stock, 'AAPL');
+          assert.property(res.body, 'stockData');
+          assert.property(res.body.stockData, 'stock');
+          assert.property(res.body.stockData, 'price');
+          assert.property(res.body.stockData, 'likes');
+          assert.equal(res.body.stockData.stock, 'AAPL');
           done();
         });
     });
@@ -30,11 +31,12 @@ suite('Functional Tests', function() {
         .end(function(err, res) {
           assert.equal(res.status, 200);
           assert.isObject(res.body);
-          assert.property(res.body, 'stock');
-          assert.property(res.body, 'price');
-          assert.property(res.body, 'likes');
-          assert.equal(res.body.stock, 'AAPL');
-          assert.equal(res.body.likes, 1); // Assuming 1 like per IP
+          assert.property(res.body, 'stockData');
+          assert.property(res.body.stockData, 'stock');
+          assert.property(res.body.stockData, 'price');
+          assert.property(res.body.stockData, 'likes');
+          assert.equal(res.body.stockData.stock, 'AAPL');
+          assert.equal(res.body.stockData.likes, 1); // Assuming 1 like per IP
           done();
         });
     });
@@ -46,11 +48,12 @@ suite('Functional Tests', function() {
         .end(function(err, res) {
           assert.equal(res.status, 200);
           assert.isObject(res.body);
-          assert.property(res.body, 'stock');
-          assert.property(res.body, 'price');
-          assert.property(res.body, 'likes');
-          assert.equal(res.body.stock, 'AAPL');
-          assert.equal(res.body.likes, 1); // Assuming 1 like per IP
+          assert.property(res.body, 'stockData');
+          assert.property(res.body.stockData, 'stock');
+          assert.property(res.body.stockData, 'price');
+          assert.property(res.body.stockData, 'likes');
+          assert.equal(res.body.stockData.stock, 'AAPL');
+          assert.equal(res.body.stockData.likes, 1); // Assuming 1 like per IP
           done();
         });
     });
@@ -65,10 +68,10 @@ suite('Functional Tests', function() {
           assert.lengthOf(res.body, 2);
           assert.property(res.body[0], 'stock');
           assert.property(res.body[0], 'price');
-          assert.property(res.body[0], 'likes');
+          assert.property(res.body[0], 'rel_likes');
           assert.property(res.body[1], 'stock');
           assert.property(res.body[1], 'price');
-          assert.property(res.body[1], 'likes');
+          assert.property(res.body[1], 'rel_likes');
           done();
         });
     });
@@ -83,12 +86,12 @@ suite('Functional Tests', function() {
           assert.lengthOf(res.body, 2);
           assert.property(res.body[0], 'stock');
           assert.property(res.body[0], 'price');
-          assert.property(res.body[0], 'likes');
+          assert.property(res.body[0], 'rel_likes');
           assert.property(res.body[1], 'stock');
           assert.property(res.body[1], 'price');
-          assert.property(res.body[1], 'likes');
-          assert.equal(res.body[0].likes, 1); // Assuming 1 like per IP
-          assert.equal(res.body[1].likes, 1); // Assuming 1 like per IP
+          assert.property(res.body[1], 'rel_likes');
+          assert.equal(res.body[0].rel_likes, 0); // Assuming 1 like per IP
+          assert.equal(res.body[1].rel_likes, 0); // Assuming 1 like per IP
           done();
         });
     });
