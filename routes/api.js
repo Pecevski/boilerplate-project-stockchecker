@@ -6,40 +6,30 @@ module.exports = function (app) {
   // In-memory store for stock prices and likes
   const stockLikes = {};
 
-  // Initialize stock data if not present
-  const initializeStock = (stockSymbol) => {
+  // Helper function to fetch or initialize stock data
+  const getStockData = (stockSymbol, addLike = false) => {
     if (!stockLikes[stockSymbol]) {
+      // Initialize stock if not already present
       stockLikes[stockSymbol] = { likes: 0, price: Math.floor(Math.random() * 1000) };
     }
-  };
 
-  // Fetch stock data and optionally add a like
-  const getStockData = (stockSymbol, addLike = false) => {
-    initializeStock(stockSymbol); // Ensure the stock is initialized
-
-    // Increment likes and increase the price if 'like=true'
+    // Increment likes if 'like=true'
     if (addLike) {
       stockLikes[stockSymbol].likes += 1; // Increment likes
-      stockLikes[stockSymbol].price += 10; // Increase price for demonstration
+      stockLikes[stockSymbol].price += 10; // Increase price by 10 for demonstration
     }
 
     return {
       stock: stockSymbol,
       price: stockLikes[stockSymbol].price,
-      likes: stockLikes[stockSymbol].likes
+      likes: stockLikes[stockSymbol].likes // Return likes as an integer
     };
   };
 
-  // API route to get stock prices
   app.route('/api/stock-prices')
     .get(async function (req, res) {
       const { stock, like } = req.query;
       const addLike = like === 'true'; // Convert 'like' to boolean
-
-      // Validate stock query
-      if (!stock || (Array.isArray(stock) && stock.length !== 2)) {
-        return res.status(400).json({ error: 'Invalid stock query.' });
-      }
 
       if (Array.isArray(stock)) {
         // Case: Comparing two stocks
@@ -63,4 +53,5 @@ module.exports = function (app) {
         return res.json({ stockData });
       }
     });
-  };
+};
+
