@@ -1,20 +1,24 @@
 'use strict';
+const bcrypt = require('bcrypt');
+const saltRounds = 10;
 
 module.exports = function (app) {
+  // In-memory store for stock likes and prices
+  const stockLikes = {
+    'GOOG': { likes: 0, price: Math.floor(Math.random() * 1000), ipAddresses: {} },
+    'MSFT': { likes: 0, price: Math.floor(Math.random() * 1000), ipAddresses: {} }
+  };
 
-  // In-memory store for stock likes
-  const stockLikes = {};
-
-  // Helper function to fetch or initialize stock data
-  const getStockData = (stockSymbol, addLike = false) => {
-    if (!stockLikes[stockSymbol]) {
-      // Initialize stock if not already present
-      stockLikes[stockSymbol] = { likes: 0, price: Math.floor(Math.random() * 1000) };
-    }
-
-    // If 'like=true', increment likes
+  // Helper function to fetch or update stock data
+  const getStockData = (stockSymbol, ip, addLike = false) => {
+    // Check if 'like=true' and if the IP has already liked this stock
     if (addLike) {
-      stockLikes[stockSymbol].likes += 1;
+      // Anonymize IP by hashing it
+      const hashedIP = bcrypt.hashSync(ip, saltRounds);
+      if (!stockLikes[stockSymbol].ipAddresses[hashedIP]) {
+        stockLikes[stockSymbol].likes += 1; // Increment likes if IP hasn't liked it yet
+        stockLikes[stockSymbol].ipAddresses[hashedIP] = true; // Mark IP as having liked
+      }
     }
 
     return {
@@ -27,18 +31,19 @@ module.exports = function (app) {
   app.route('/api/stock-prices')
     .get(async function (req, res) {
       const { stock, like } = req.query;
+      const ip = req.ip; // Get the user's IP
       const addLike = like === 'true'; // Convert 'like' to boolean
 
       if (Array.isArray(stock)) {
-        // Case: Two stocks comparison
-        const stock1 = getStockData(stock[0], addLike);
-        const stock2 = getStockData(stock[1], addLike);
+        // Case: Comparing two stocks
+        const stock1 = getStockData(stock[0], ip, addLike);
+        const stock2 = getStockData(stock[1], ip, addLike);
 
-        // Calculate relative likes between the two stocks
+        // Calculate relative likes
         const rel_likes1 = stock1.likes - stock2.likes;
         const rel_likes2 = stock2.likes - stock1.likes;
 
-        // Return both stocks with relative likes
+        // Return both stocks with their prices and relative likes
         res.json({
           stockData: [
             { stock: stock1.stock, price: stock1.price, rel_likes: rel_likes1 },
@@ -47,7 +52,7 @@ module.exports = function (app) {
         });
       } else {
         // Case: Single stock
-        const stockData = getStockData(stock, addLike);
+        const stockData = getStockData(stock, ip, addLike);
         res.json({ stockData });
       }
     });
