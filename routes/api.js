@@ -1,7 +1,7 @@
 'use strict';
 
 module.exports = function (app) {
-  // In-memory store for stock likes and prices
+  // In-memory store for stock prices and likes
   const stockLikes = {};
 
   // Helper function to fetch or initialize stock data
@@ -11,9 +11,10 @@ module.exports = function (app) {
       stockLikes[stockSymbol] = { likes: 0, price: Math.floor(Math.random() * 1000) };
     }
 
-    // Increment likes if 'like=true'
+    // If 'like=true', increment likes and increase the price
     if (addLike) {
-      stockLikes[stockSymbol].likes += 1;
+      stockLikes[stockSymbol].likes += 1; // Increment likes
+      stockLikes[stockSymbol].price += 10; // Increase price for demonstration (adjust as needed)
     }
 
     return {
@@ -33,15 +34,9 @@ module.exports = function (app) {
         const stock1 = getStockData(stock[0], addLike);
         const stock2 = getStockData(stock[1], addLike);
 
-        // Calculate relative likes
-        let rel_likes1 = stock1.likes - stock2.likes; // stock1 - stock2
-        let rel_likes2 = stock2.likes - stock1.likes; // stock2 - stock1
-
-        // Adjusting rel_likes if both stocks have not been liked
-        if (stock1.likes === 0 && stock2.likes === 0) {
-          rel_likes1 = -1; // stock1 is less favored
-          rel_likes2 = 1;  // stock2 is more favored
-        }
+        // Calculate relative likes based on the likes of each stock
+        const rel_likes1 = stock1.likes - stock2.likes; // stock1's likes - stock2's likes
+        const rel_likes2 = stock2.likes - stock1.likes; // stock2's likes - stock1's likes
 
         // Return both stocks with their prices and relative likes
         return res.json({
