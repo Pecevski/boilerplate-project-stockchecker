@@ -1,6 +1,4 @@
 'use strict';
-const bcrypt = require('bcrypt');
-const saltRounds = 10;
 
 module.exports = function (app) {
 
@@ -14,7 +12,7 @@ module.exports = function (app) {
       stockLikes[stockSymbol] = { likes: 0, price: Math.floor(Math.random() * 1000) };
     }
 
-    // If 'like=true', increment likes but ensure it happens once per stock request
+    // If 'like=true', increment likes
     if (addLike) {
       stockLikes[stockSymbol].likes += 1;
     }
@@ -36,7 +34,7 @@ module.exports = function (app) {
         const stock1 = getStockData(stock[0], addLike);
         const stock2 = getStockData(stock[1], addLike);
 
-        // Calculate relative likes (ensure this happens after both stocks have the same number of likes)
+        // Calculate relative likes between the two stocks
         const rel_likes1 = stock1.likes - stock2.likes;
         const rel_likes2 = stock2.likes - stock1.likes;
 
