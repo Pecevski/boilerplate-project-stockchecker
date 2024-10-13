@@ -1,20 +1,26 @@
 'use strict';
+const bcrypt = require('bcrypt');
+const saltRounds = 10;
 
 module.exports = function (app) {
   // In-memory store for stock prices and likes
   const stockLikes = {};
 
-  // Helper function to fetch or initialize stock data
-  const getStockData = (stockSymbol, addLike = false) => {
+  // Initialize stock data if not present
+  const initializeStock = (stockSymbol) => {
     if (!stockLikes[stockSymbol]) {
-      // Initialize stock if not already present
       stockLikes[stockSymbol] = { likes: 0, price: Math.floor(Math.random() * 1000) };
     }
+  };
 
-    // If 'like=true', increment likes and increase the price
+  // Fetch stock data and optionally add a like
+  const getStockData = (stockSymbol, addLike = false) => {
+    initializeStock(stockSymbol); // Ensure the stock is initialized
+
+    // Increment likes and increase the price if 'like=true'
     if (addLike) {
       stockLikes[stockSymbol].likes += 1; // Increment likes
-      stockLikes[stockSymbol].price += 10; // Increase price for demonstration (adjust as needed)
+      stockLikes[stockSymbol].price += 10; // Increase price for demonstration
     }
 
     return {
@@ -24,17 +30,23 @@ module.exports = function (app) {
     };
   };
 
+  // API route to get stock prices
   app.route('/api/stock-prices')
     .get(async function (req, res) {
       const { stock, like } = req.query;
       const addLike = like === 'true'; // Convert 'like' to boolean
+
+      // Validate stock query
+      if (!stock || (Array.isArray(stock) && stock.length !== 2)) {
+        return res.status(400).json({ error: 'Invalid stock query.' });
+      }
 
       if (Array.isArray(stock)) {
         // Case: Comparing two stocks
         const stock1 = getStockData(stock[0], addLike);
         const stock2 = getStockData(stock[1], addLike);
 
-        // Calculate relative likes based on the likes of each stock
+        // Calculate relative likes
         const rel_likes1 = stock1.likes - stock2.likes; // stock1's likes - stock2's likes
         const rel_likes2 = stock2.likes - stock1.likes; // stock2's likes - stock1's likes
 
@@ -51,4 +63,4 @@ module.exports = function (app) {
         return res.json({ stockData });
       }
     });
-};
+  };
