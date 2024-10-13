@@ -40,6 +40,12 @@ module.exports = function (app) {
         const rel_likes1 = stock1.likes - stock2.likes; // stock1's likes - stock2's likes
         const rel_likes2 = stock2.likes - stock1.likes; // stock2's likes - stock1's likes
 
+         // Adjusting rel_likes if both stocks have not been liked
+         if (stock1.likes === 0 && stock2.likes === 0) {
+          rel_likes1 = -1; // stock1 is less favored
+          rel_likes2 = 1;  // stock2 is more favored
+        }
+
         // Return both stocks with their prices and relative likes
         return res.json({
           stockData: [
