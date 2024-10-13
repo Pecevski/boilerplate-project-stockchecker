@@ -1,10 +1,7 @@
 'use strict';
-const bcrypt = require('bcrypt');
-const saltRounds = 10;
 
 module.exports = function (app) {
-
-  // In-memory store for stock likes
+  // In-memory store for stock likes and prices
   const stockLikes = {};
 
   // Helper function to fetch or initialize stock data
@@ -14,7 +11,7 @@ module.exports = function (app) {
       stockLikes[stockSymbol] = { likes: 0, price: Math.floor(Math.random() * 1000) };
     }
 
-    // If 'like=true', increment likes but ensure it happens once per stock request
+    // Increment likes if 'like=true'
     if (addLike) {
       stockLikes[stockSymbol].likes += 1;
     }
@@ -32,16 +29,22 @@ module.exports = function (app) {
       const addLike = like === 'true'; // Convert 'like' to boolean
 
       if (Array.isArray(stock)) {
-        // Case: Two stocks comparison
+        // Case: Comparing two stocks
         const stock1 = getStockData(stock[0], addLike);
         const stock2 = getStockData(stock[1], addLike);
 
-        // Calculate relative likes (ensure this happens after both stocks have the same number of likes)
-        const rel_likes1 = stock1.likes - stock2.likes;
-        const rel_likes2 = stock2.likes - stock1.likes;
+        // Calculate relative likes
+        let rel_likes1 = stock1.likes - stock2.likes; // stock1 - stock2
+        let rel_likes2 = stock2.likes - stock1.likes; // stock2 - stock1
 
-        // Return both stocks with relative likes
-        res.json({
+        // Adjusting rel_likes if both stocks have not been liked
+        if (stock1.likes === 0 && stock2.likes === 0) {
+          rel_likes1 = -1; // stock1 is less favored
+          rel_likes2 = 1;  // stock2 is more favored
+        }
+
+        // Return both stocks with their prices and relative likes
+        return res.json({
           stockData: [
             { stock: stock1.stock, price: stock1.price, rel_likes: rel_likes1 },
             { stock: stock2.stock, price: stock2.price, rel_likes: rel_likes2 }
@@ -50,7 +53,7 @@ module.exports = function (app) {
       } else {
         // Case: Single stock
         const stockData = getStockData(stock, addLike);
-        res.json({ stockData });
+        return res.json({ stockData });
       }
     });
 };
