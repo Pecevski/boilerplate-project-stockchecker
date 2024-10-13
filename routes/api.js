@@ -14,7 +14,7 @@ module.exports = function (app) {
       stockLikes[stockSymbol] = { likes: 0, price: Math.floor(Math.random() * 1000) };
     }
 
-    // If 'like=true', increment likes
+    // If 'like=true', increment likes but ensure it happens once per stock request
     if (addLike) {
       stockLikes[stockSymbol].likes += 1;
     }
